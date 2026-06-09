@@ -41,14 +41,12 @@ const WordModal: React.FC<WordModalProps> = ({
     >
       <Form form={form} layout="vertical" onFinish={onSave}>
         <Form.Item
-          name="wordText"
+          name="text"
           label={`Nome da ${keyWord}`}
           rules={[{ required: true, message: `Por favor, digite a ${keyWord.toLowerCase()} desejada!` }]}
         >
-          {/* 4. Placeholder dinâmico */}
           <Input placeholder={`Digite aqui a sua ${keyWord.toLowerCase()}...`} />
         </Form.Item>
-
         <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
           <Space>
             <Button onClick={onCancel}>Cancelar</Button>
