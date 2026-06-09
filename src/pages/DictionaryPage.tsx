@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Layout, Button, Row, Space, Typography, Modal , Col} from 'antd';
+import React, { useState } from 'react';
+import { Layout, Button, Row, Space, Typography, Modal, Col } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 
 import HeaderBar from '../components/dictionarypage/HeaderBar';
@@ -10,74 +10,56 @@ import udescLogo from "../assets/udesc_logo.png";
 
 const { Content } = Layout;
 const { Text } = Typography;
+
 export interface Word {
   id: number;
   text: string;
 }
 
 const DictionaryPage: React.FC = () => {
-
-  // Tipando o array de palavras
   const [words, setWords] = useState<Word[]>([
     { id: 6, text: 'Pedro Paoli' },
     { id: 7, text: 'João Sell' },
     { id: 67, text: 'Felipe Mais' },
   ]);
 
-  const [categories, setCategories] = useState<Word[]> ([
-      { id: 6, text: 'Pedro Paoli' },
-      { id: 7, text: 'João Sell' },
-      { id: 67, text: 'Felipe Mais' },
-  ])
-
-  useEffect(() => {
-    const carregarPalavras = async () => {
-      try {
-        //aqui fica a chamada pra nossa api
-        const resposta = await fetch('aqui a nossa url');
-        const dados = await resposta.json();
-        
-        
-        setWords(dados);
-      } catch (erro) {
-        console.error("Erro ao carregar palavras:", erro);
-      }
-    };
-
-    carregarPalavras();
-  }, []);
+  const [categories, setCategories] = useState<Word[]>([
+    { id: 1, text: 'Engenharia' },
+    { id: 2, text: 'Tecnologia' },
+  ]);
 
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
-
-  const handleLetterClick = (letter: string) => {
-    if (selectedLetter === letter) {
-      setSelectedLetter(null);
-    } else {
-      setSelectedLetter(letter);
-    }
-  };
-
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [editingWord, setEditingWord] = useState<Word | null>(null);
-  const [editingCategory, setEditingCategory] = useState<Word | null>(null);
+
+  const [activeModal, setActiveModal] = useState<'word' | 'category' | null>(null);
+  const [editingItem, setEditingItem] = useState<Word | null>(null);
 
   const primaryBlue = '#1d2c60';
   const grayBackground = '#e5e5e5';
 
+  const handleLetterClick = (letter: string) => {
+    setSelectedLetter(selectedLetter === letter ? null : letter);
+  };
+
+  // Funções para abrir os Modais isoladamente
   const openWordModal = (word: Word | null = null) => {
-    setEditingWord(word);
-    setIsModalOpen(true);
+    setEditingItem(word);
+    setActiveModal('word');
   };
 
   const openCategoryModal = (category: Word | null = null) => {
-    setEditingCategory(category);
-    setIsModalOpen(true);
+    setEditingItem(category);
+    setActiveModal('category');
   };
 
+  const closeModal = () => {
+    setActiveModal(null);
+    setEditingItem(null);
+  };
+
+  // Filtragem das Palavras
   const filteredWords = words.filter(word => {
     const matchesSearch = word.text.toLowerCase().includes(searchTerm.toLowerCase());
-    
     const matchesLetter = selectedLetter 
       ? word.text.toLowerCase().startsWith(selectedLetter.toLowerCase()) 
       : true;
@@ -85,23 +67,25 @@ const DictionaryPage: React.FC = () => {
     return matchesSearch && matchesLetter;
   });
 
-  // Valores que vêm do Form
   const handleSaveWord = (values: { text: string }) => {
-    if (editingWord) {
-      setWords(words.map(w => w.id === editingWord.id ? { ...w, text: values.text } : w));
+    if (editingItem) {
+      setWords(words.map(w => w.id === editingItem.id ? { ...w, text: values.text } : w));
     } else {
       setWords([...words, { id: Date.now(), text: values.text }]);
     }
-    setIsModalOpen(false);
+    closeModal();
   };
 
+  // Salvar Categoria
   const handleSaveCategory = (values: { text: string }) => {
-    if (editingCategory) {
-      setCategories(categories.map(w => w.id === editingCategory.id ? { ...w, text: values.text } : w));
+    if (editingItem) {
+      // Edição
+      setCategories(categories.map(c => c.id === editingItem.id ? { ...c, text: values.text } : c));
     } else {
+      // Criação
       setCategories([...categories, { id: Date.now(), text: values.text }]);
     }
-    setIsModalOpen(false);
+    closeModal();
   };
 
   const handleDelete = (id: number) => {
@@ -121,83 +105,91 @@ const DictionaryPage: React.FC = () => {
       
       <HeaderBar primaryBlue={primaryBlue} onSearch={setSearchTerm}/>
 
-      <Content style={{ padding: '40px 60px', position: 'relative' }}>
+      <Content style={{ padding: '40px 60px', display: 'flex', flexDirection: 'column' }}>
         
-        <AlphabetFilter 
-          grayBackground={grayBackground} 
-          primaryBlue={primaryBlue}
-          selectedLetter={selectedLetter}
-          onLetterClick={handleLetterClick}
-        />
+        {/* O conteúdo principal cresce para empurrar o rodapé para baixo */}
+        <div style={{ flex: 1 }}>
+          <AlphabetFilter 
+            grayBackground={grayBackground} 
+            primaryBlue={primaryBlue}
+            selectedLetter={selectedLetter}
+            onLetterClick={handleLetterClick}
+          />
 
-        {/* Barra de Ações */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <Space>
-            <Button icon={<PlusOutlined />} style={{ borderRadius: '20px', background: grayBackground, border: 'none', fontWeight: '500' }} onClick={() => openCategoryModal()}>
-              Criar categoria
-            </Button>
-            <Button 
-              icon={<PlusOutlined />} 
-              onClick={() => openWordModal()} 
-              style={{ borderRadius: '20px', background: grayBackground, border: 'none', fontWeight: '500' }}
-            >
-              Criar palavra
-            </Button>
-          </Space>
-          <Text style={{ fontWeight: '500' }}>Exibindo {filteredWords.length} de {words.length}</Text>
+          {/* Barra de Ações */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+            <Space>
+              <Button 
+                icon={<PlusOutlined />} 
+                style={{ borderRadius: '20px', background: grayBackground, border: 'none', fontWeight: '500' }} 
+                onClick={() => openCategoryModal()}
+              >
+                Criar categoria
+              </Button>
+              <Button 
+                icon={<PlusOutlined />} 
+                onClick={() => openWordModal()} 
+                style={{ borderRadius: '20px', background: grayBackground, border: 'none', fontWeight: '500' }}
+              >
+                Criar palavra
+              </Button>
+            </Space>
+            <Text style={{ fontWeight: '500' }}>Exibindo {filteredWords.length} de {words.length}</Text>
+          </div>
+
+          {filteredWords.length === 0 && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
+              Nenhuma palavra encontrada com os filtros informados!
+            </div>
+          )}
+
+          {/* Grid de Palavras */}
+          <Row gutter={[24, 24]}>
+            {filteredWords.map((item) => (
+              <WordCard 
+                key={item.id} 
+                item={item} 
+                primaryBlue={primaryBlue} 
+                onEdit={openWordModal} 
+                onDelete={handleDelete} 
+              />
+            ))}
+          </Row>
+
+          {/* Botão Ver Mais */}
+          {filteredWords.length > 24 && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
+              <Button style={{ borderRadius: '20px', background: '#d9d9d9', border: 'none', padding: '0 40px', fontWeight: '500', fontSize: '16px', height: '40px' }}>
+                Ver mais
+              </Button>
+            </div>
+          )}
         </div>
 
-        {filteredWords.length == 0 && (
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
-            Nenhuma palavra encontrada com os filtros informados!
-          </div>
-        )}
-
-        {/* Grid de Palavras do componente menor */}
-        <Row gutter={[24, 24]}>
-          {filteredWords.map((item) => (
-            <WordCard 
-              key={item.id} 
-              item={item} 
-              primaryBlue={primaryBlue} 
-              onEdit={openWordModal} 
-              onDelete={handleDelete} 
-            />
-          ))}
-        </Row>
-
-        {/* Botão Ver Mais */}
-        {filteredWords.length > 24 && (
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '40px' }}>
-            <Button style={{ borderRadius: '20px', background: '#d9d9d9', border: 'none', padding: '0 40px', fontWeight: '500', fontSize: '16px', height: '40px' }}>
-              Ver mais
-            </Button>
-          </div>
-        )}
-
-        {/* Rodapé institucional */}
-        <Row justify="end" style={{ marginTop: 100 }}>{/*Descobrir como bota isso no canto*/}
-            <Col>
-              <img style={{ maxWidth: 100 }} src={udescLogo} />
-            </Col>
+        {/* Rodapé institucional perfeitamente alinhado embaixo e à direita */}
+        <Row justify="end" style={{ marginTop: 40 }}>
+          <Col>
+            <img style={{ maxWidth: 100, display: 'block' }} src={udescLogo} alt="UDESC Logo" />
+          </Col>
         </Row>
 
       </Content>
 
-      {/* Modal gerenciado externamente */}
+      {/* MODAL DE PALAVRAS*/}
       <WordModal 
-        isOpen={isModalOpen}
-        editingWord={editingWord}
-        onCancel={() => setIsModalOpen(false)}
+        isOpen={activeModal === 'word'}
+        editingWord={editingItem}
+        onCancel={closeModal}
         onSave={handleSaveWord}
         primaryBlue={primaryBlue}
         keyWord='Palavra'
       />
 
+      {/* MODAL DE CATEGORIAS*/}
       <WordModal 
-        isOpen={isModalOpen}
-        editingWord={editingCategory}
-        onCancel={() => setIsModalOpen(false)}
+        isOpen={activeModal === 'category'}
+        editingWord={editingItem}
+        onCancel={closeModal}
         onSave={handleSaveCategory}
         primaryBlue={primaryBlue}
         keyWord='Categoria'
