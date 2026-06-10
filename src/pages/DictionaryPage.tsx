@@ -16,13 +16,14 @@ const { Text } = Typography;
 export interface Word {
   id: number;
   text: string;
+  categoryIds?: number[];
 }
 
 const DictionaryPage: React.FC = () => {
   const [words, setWords] = useState<Word[]>([
-    { id: 6, text: "Pedro Paoli" },
-    { id: 7, text: "João Sell" },
-    { id: 67, text: "Felipe Mais" },
+    { id: 6, text: 'Pedro Paoli', categoryIds: [1] },
+    { id: 7, text: 'João Sell', categoryIds: [1, 2] },
+    { id: 67, text: 'Felipe Mais', categoryIds: [] },
   ]);
 
   const [categories, setCategories] = useState<Word[]>([
@@ -73,15 +74,19 @@ const DictionaryPage: React.FC = () => {
     return matchesSearch && matchesLetter;
   });
 
-  const handleSaveWord = (values: { text: string }) => {
+  const handleSaveWord = (values: { text: string; categoryIds?: number[] }) => {
     if (editingItem) {
-      setWords(
-        words.map((w) =>
-          w.id === editingItem.id ? { ...w, text: values.text } : w,
-        ),
-      );
+      setWords(words.map(w => w.id === editingItem.id ? { 
+        ...w, 
+        text: values.text, 
+        categoryIds: values.categoryIds || [] 
+      } : w));
     } else {
-      setWords([...words, { id: Date.now(), text: values.text }]);
+      setWords([...words, { 
+        id: Date.now(), 
+        text: values.text, 
+        categoryIds: values.categoryIds || [] 
+      }]);
     }
     closeModal();
   };
@@ -236,17 +241,16 @@ const DictionaryPage: React.FC = () => {
         </Col>
       </Row>
 
-      {/* MODAL DE PALAVRAS*/}
-      <WordModal
-        isOpen={activeModal === "word"}
+      <WordModal 
+        isOpen={activeModal === 'word'}
         editingWord={editingItem}
         onCancel={closeModal}
         onSave={handleSaveWord}
         primaryBlue={primaryBlue}
-        keyWord="Palavra"
+        keyWord='Palavra'
+        categories={categories}
       />
 
-      {/* MODAL DE CATEGORIAS*/}
       <WordModal
         isOpen={activeModal === "category"}
         editingWord={editingItem}
