@@ -15,7 +15,7 @@ const HeaderBar: React.FC = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "0 24px",
+        padding: "20px 24px",
       }}
     >
       <Button
