@@ -19,7 +19,7 @@ const WordCard: React.FC<WordCardProps> = ({ item, primaryBlue, onEdit, onDelete
         backgroundColor: primaryBlue,
         color: '#fff',
         padding: '12px 16px',
-        borderRadius: '24px',
+        borderRadius: '12px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',

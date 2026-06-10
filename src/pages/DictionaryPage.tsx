@@ -192,7 +192,7 @@ const DictionaryPage: React.FC = () => {
         )}
 
         {/* Grid de Palavras */}
-        <Row gutter={[24, 24]}>
+        <Row gutter={[12, 12]}>
           {filteredWords.map((item) => (
             <WordCard
               key={item.id}
