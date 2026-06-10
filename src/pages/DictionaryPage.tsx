@@ -6,9 +6,9 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 
-import AlphabetFilter from "../components/dictionarypage/AlphabetFilter";
-import WordCard from "../components/dictionarypage/WordCard";
-import WordModal from "../components/dictionarypage/WordModal";
+import AlphabetFilter from "../components/AlphabetFilter";
+import WordCard from "../components/WordCard";
+import WordModal from "../components/WordModal";
 
 const { Text } = Typography;
 

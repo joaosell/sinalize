@@ -62,6 +62,7 @@ const WordModal: React.FC<WordModalProps> = ({
               placeholder="Selecione uma ou mais categorias"
               options={categories.map(cat => ({ label: cat.text, value: cat.id }))}
               allowClear
+              optionFilterProp="label"
             />
           </Form.Item>
         )}
