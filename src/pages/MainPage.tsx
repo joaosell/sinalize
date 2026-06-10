@@ -1,6 +1,5 @@
-import { Button, Col, Row, Typography } from "antd";
+import { Button, Col, Row } from "antd";
 import sinalizeLogo from "../assets/sinalize_logo.png";
-import udescLogo from "../assets/udesc_logo.png";
 import { useNavigate } from "react-router";
 
 const MainPage = () => {
@@ -52,21 +51,6 @@ const MainPage = () => {
           </Col>
         </Row>
       </Col>
-
-      <Row justify="center" style={{ marginTop: 40 }}>
-        <Col span={24} style={{ textAlign: "center" }}>
-          <Typography.Text>
-            Feito por João Pedro Ferreira Sell, Pedro Paoli Neto e Felipe
-            Augusto Mais
-          </Typography.Text>
-
-          <Row justify="center" style={{ marginTop: 10 }}>
-            <Col>
-              <img style={{ maxWidth: 100 }} src={udescLogo} />
-            </Col>
-          </Row>
-        </Col>
-      </Row>
     </Row>
   );
 };

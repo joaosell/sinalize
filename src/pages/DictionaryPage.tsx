@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Row, Space, Typography, Modal, Col, Input } from "antd";
+import { Button, Row, Space, Typography, Modal, Input } from "antd";
 import {
   FilterOutlined,
   PlusOutlined,
@@ -9,7 +9,6 @@ import {
 import AlphabetFilter from "../components/AlphabetFilter";
 import WordCard from "../components/WordCard";
 import WordModal from "../components/WordModal";
-import udescLogo from "../assets/udesc_logo.png";
 
 const { Text } = Typography;
 
@@ -21,9 +20,9 @@ export interface Word {
 
 const DictionaryPage: React.FC = () => {
   const [words, setWords] = useState<Word[]>([
-    { id: 6, text: 'Pedro Paoli', categoryIds: [1] },
-    { id: 7, text: 'João Sell', categoryIds: [1, 2] },
-    { id: 67, text: 'Felipe Mais', categoryIds: [] },
+    { id: 6, text: "Pedro Paoli", categoryIds: [1] },
+    { id: 7, text: "João Sell", categoryIds: [1, 2] },
+    { id: 67, text: "Felipe Mais", categoryIds: [] },
   ]);
 
   const [categories, setCategories] = useState<Word[]>([
@@ -76,17 +75,26 @@ const DictionaryPage: React.FC = () => {
 
   const handleSaveWord = (values: { text: string; categoryIds?: number[] }) => {
     if (editingItem) {
-      setWords(words.map(w => w.id === editingItem.id ? { 
-        ...w, 
-        text: values.text, 
-        categoryIds: values.categoryIds || [] 
-      } : w));
+      setWords(
+        words.map((w) =>
+          w.id === editingItem.id
+            ? {
+                ...w,
+                text: values.text,
+                categoryIds: values.categoryIds || [],
+              }
+            : w,
+        ),
+      );
     } else {
-      setWords([...words, { 
-        id: Date.now(), 
-        text: values.text, 
-        categoryIds: values.categoryIds || [] 
-      }]);
+      setWords([
+        ...words,
+        {
+          id: Date.now(),
+          text: values.text,
+          categoryIds: values.categoryIds || [],
+        },
+      ]);
     }
     closeModal();
   };
@@ -230,24 +238,13 @@ const DictionaryPage: React.FC = () => {
         )}
       </div>
 
-      {/* Rodapé institucional perfeitamente alinhado embaixo e à direita */}
-      <Row justify="end" style={{ marginTop: 40 }}>
-        <Col>
-          <img
-            style={{ maxWidth: 100, display: "block" }}
-            src={udescLogo}
-            alt="UDESC Logo"
-          />
-        </Col>
-      </Row>
-
-      <WordModal 
-        isOpen={activeModal === 'word'}
+      <WordModal
+        isOpen={activeModal === "word"}
         editingWord={editingItem}
         onCancel={closeModal}
         onSave={handleSaveWord}
         primaryBlue={primaryBlue}
-        keyWord='Palavra'
+        keyWord="Palavra"
         categories={categories}
       />
 
