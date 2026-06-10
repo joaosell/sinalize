@@ -13,6 +13,7 @@ function Footer() {
         alignItems: "center",
         justifyContent: "center",
         padding: "10px 16px",
+        marginTop: "80px",
       }}
     >
       <img src={udescLogo} alt="UDESC" style={{ maxWidth: 100 }} />
