@@ -131,6 +131,19 @@ const DictionaryPage: React.FC = () => {
     <>
       {/* O conteúdo principal cresce para empurrar o rodapé para baixo */}
       <div style={{ flex: 1 }}>
+        <Input
+          placeholder="Pesquisar"
+          prefix={<SearchOutlined style={{ color: "#aaa", marginLeft: 5 }} />}
+          style={{
+            borderRadius: "20px",
+            width: "50vh",
+            padding: 5,
+            margin: "2vh",
+          }}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          allowClear
+        />
+        <Button shape="circle" icon={<FilterOutlined />} />
         <AlphabetFilter
           grayBackground={grayBackground}
           primaryBlue={primaryBlue}
@@ -172,15 +185,6 @@ const DictionaryPage: React.FC = () => {
             >
               Criar palavra
             </Button>
-
-            <Input
-              placeholder="Pesquisar"
-              prefix={<SearchOutlined style={{ color: "#aaa" }} />}
-              style={{ borderRadius: "20px", width: "250px" }}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              allowClear
-            />
-            <Button shape="circle" icon={<FilterOutlined />} />
           </Space>
           <Text style={{ fontWeight: "500" }}>
             Exibindo {filteredWords.length} de {words.length}
