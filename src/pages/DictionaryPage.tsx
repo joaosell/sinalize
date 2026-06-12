@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Row, Space, Typography, Modal, Input } from "antd";
+import { Button, Row, Space, Typography, Modal, Input, Segmented } from "antd";
 import {
   FilterOutlined,
   PlusOutlined,
@@ -131,6 +131,9 @@ const DictionaryPage: React.FC = () => {
     <>
       {/* O conteúdo principal cresce para empurrar o rodapé para baixo */}
       <div style={{ flex: 1 }}>
+        <div style={{ marginTop: "2vh" }}>
+          <Segmented size="large" options={["Palavras", "Categorias"]} />
+        </div>
         <Input
           placeholder="Pesquisar"
           prefix={<SearchOutlined style={{ color: "#aaa", marginLeft: 5 }} />}
