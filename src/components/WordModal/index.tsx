@@ -45,7 +45,7 @@ const WordModal: React.FC<WordModalProps> = ({
     >
       <Form form={form} layout="vertical" onFinish={onSave}>
         <Form.Item
-          name="text"
+          name="palavra"
           label={`Nome da ${keyWord}`}
           rules={[
             {

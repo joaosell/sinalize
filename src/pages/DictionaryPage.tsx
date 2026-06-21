@@ -77,7 +77,7 @@ const DictionaryPage: React.FC = () => {
     return matchesSearch && matchesLetter;
   });
 
-  const handleSaveWord = (values: {
+  const handleSaveWord = async (values: {
     palavra: string;
     categoryIds?: number[];
   }) => {
@@ -94,15 +94,18 @@ const DictionaryPage: React.FC = () => {
         ),
       );
     } else {
-      setPalavras([
-        ...palavras,
-        {
-          id: Date.now(),
+      try {
+        await palavraService.createPalavra({
+          //arrumar os parametros depois
           palavra: values.palavra,
-          categoryIds: values.categoryIds || [],
-        },
-      ]);
+          categoryIds: values.categoryIds,
+          descricao: "descricao teste",
+        });
+      } catch (e) {
+        alert(e);
+      }
     }
+    carregar();
     closeModal();
   };
 
