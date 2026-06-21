@@ -128,6 +128,15 @@ const DictionaryPage: React.FC = () => {
     closeModal();
   };
 
+  async function deletarPalavra(id: number) {
+    try {
+      await palavraService.deletePalavra(id);
+      carregar();
+    } catch (e) {
+      alert(e);
+    }
+  }
+
   const handleDelete = (id: number) => {
     Modal.confirm({
       title: "Deseja realmente excluir esta palavra?",
@@ -135,7 +144,7 @@ const DictionaryPage: React.FC = () => {
       okType: "danger",
       cancelText: "Cancelar",
       onOk() {
-        setPalavras(palavras.filter((w) => w.id !== id));
+        deletarPalavra(id);
       },
     });
   };
