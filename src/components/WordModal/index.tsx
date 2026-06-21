@@ -1,34 +1,34 @@
-import React, { useEffect } from 'react';
-import { Modal, Form, Input, Button, Space, Select } from 'antd'; // Importe o Select
-import type { Word } from '../../pages/DictionaryPage';
+import React, { useEffect } from "react";
+import { Modal, Form, Input, Button, Space, Select } from "antd";
+import type { Word } from "../../pages/DictionaryPage";
 
 interface WordModalProps {
   isOpen: boolean;
   editingWord: Word | null;
   onCancel: () => void;
-  onSave: (values: { text: string; categoryIds?: number[] }) => void; 
+  onSave: (values: { palavra: string; categoryIds?: number[] }) => void;
   primaryBlue: string;
   keyWord: string;
-  categories?: Word[]; 
+  categories?: Word[];
 }
 
-const WordModal: React.FC<WordModalProps> = ({ 
-  isOpen, 
-  editingWord, 
-  onCancel, 
-  onSave, 
-  primaryBlue, 
+const WordModal: React.FC<WordModalProps> = ({
+  isOpen,
+  editingWord,
+  onCancel,
+  onSave,
+  primaryBlue,
   keyWord,
-  categories
+  categories,
 }) => {
   const [form] = Form.useForm();
 
   useEffect(() => {
     if (isOpen) {
       if (editingWord) {
-        form.setFieldsValue({ 
-          text: editingWord.text,
-          categoryIds: editingWord.categoryIds || [] 
+        form.setFieldsValue({
+          text: editingWord.palavra,
+          categoryIds: editingWord.categoryIds || [],
         });
       } else {
         form.resetFields();
@@ -47,30 +47,41 @@ const WordModal: React.FC<WordModalProps> = ({
         <Form.Item
           name="text"
           label={`Nome da ${keyWord}`}
-          rules={[{ required: true, message: `Por favor, digite a ${keyWord.toLowerCase()} desejada!` }]}
+          rules={[
+            {
+              required: true,
+              message: `Por favor, digite a ${keyWord.toLowerCase()} desejada!`,
+            },
+          ]}
         >
-          <Input placeholder={`Digite aqui a sua ${keyWord.toLowerCase()}...`} />
+          <Input
+            placeholder={`Digite aqui a sua ${keyWord.toLowerCase()}...`}
+          />
         </Form.Item>
 
-        {keyWord === 'Palavra' && categories && (
-          <Form.Item
-            name="categoryIds"
-            label="Categorias da Palavra"
-          >
+        {keyWord === "Palavra" && categories && (
+          <Form.Item name="categoryIds" label="Categorias da Palavra">
             <Select
               mode="multiple"
               placeholder="Selecione uma ou mais categorias"
-              options={categories.map(cat => ({ label: cat.text, value: cat.id }))}
+              options={categories.map((cat) => ({
+                label: cat.palavra,
+                value: cat.id,
+              }))}
               allowClear
               optionFilterProp="label"
             />
           </Form.Item>
         )}
 
-        <Form.Item style={{ marginBottom: 0, textAlign: 'right' }}>
+        <Form.Item style={{ marginBottom: 0, textAlign: "right" }}>
           <Space>
             <Button onClick={onCancel}>Cancelar</Button>
-            <Button type="primary" htmlType="submit" style={{ backgroundColor: primaryBlue, borderColor: primaryBlue }}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              style={{ backgroundColor: primaryBlue, borderColor: primaryBlue }}
+            >
               {editingWord ? "Salvar Alterações" : "Adicionar"}
             </Button>
           </Space>

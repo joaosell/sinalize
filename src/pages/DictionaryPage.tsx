@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Row, Space, Typography, Modal, Input, Segmented } from "antd";
 import {
   FilterOutlined,
@@ -9,25 +9,23 @@ import {
 import AlphabetFilter from "../components/AlphabetFilter";
 import WordCard from "../components/WordCard";
 import WordModal from "../components/WordModal";
+import { palavraService } from "../services/palavraService";
 
 const { Text } = Typography;
 
 export interface Word {
   id: number;
-  text: string;
+  palavra: string;
+  // descricao: string;
   categoryIds?: number[];
 }
 
 const DictionaryPage: React.FC = () => {
-  const [words, setWords] = useState<Word[]>([
-    { id: 6, text: "Pedro Paoli", categoryIds: [1] },
-    { id: 7, text: "João Sell", categoryIds: [1, 2] },
-    { id: 67, text: "Felipe Mais", categoryIds: [] },
-  ]);
+  const [palavras, setPalavras] = useState<Word[]>([]);
 
-  const [categories, setCategories] = useState<Word[]>([
-    { id: 1, text: "Engenharia" },
-    { id: 2, text: "Tecnologia" },
+  const [categories, setCategories] = useState([
+    { id: 1, palavra: "Engenharia" },
+    { id: 2, palavra: "Tecnologia" },
   ]);
 
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
@@ -40,6 +38,12 @@ const DictionaryPage: React.FC = () => {
 
   const primaryBlue = "#1d2c60";
   const grayBackground = "#e5e5e5";
+
+  const carregar = () => palavraService.getAllPalavras().then(setPalavras);
+
+  useEffect(() => {
+    carregar();
+  }, []);
 
   const handleLetterClick = (letter: string) => {
     setSelectedLetter(selectedLetter === letter ? null : letter);
@@ -62,36 +66,39 @@ const DictionaryPage: React.FC = () => {
   };
 
   // Filtragem das Palavras
-  const filteredWords = words.filter((word) => {
-    const matchesSearch = word.text
+  const filteredWords = palavras.filter((word) => {
+    const matchesSearch = word.palavra
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
     const matchesLetter = selectedLetter
-      ? word.text.toLowerCase().startsWith(selectedLetter.toLowerCase())
+      ? word.palavra.toLowerCase().startsWith(selectedLetter.toLowerCase())
       : true;
 
     return matchesSearch && matchesLetter;
   });
 
-  const handleSaveWord = (values: { text: string; categoryIds?: number[] }) => {
+  const handleSaveWord = (values: {
+    palavra: string;
+    categoryIds?: number[];
+  }) => {
     if (editingItem) {
-      setWords(
-        words.map((w) =>
+      setPalavras(
+        palavras.map((w) =>
           w.id === editingItem.id
             ? {
                 ...w,
-                text: values.text,
+                palavra: values.palavra,
                 categoryIds: values.categoryIds || [],
               }
             : w,
         ),
       );
     } else {
-      setWords([
-        ...words,
+      setPalavras([
+        ...palavras,
         {
           id: Date.now(),
-          text: values.text,
+          palavra: values.palavra,
           categoryIds: values.categoryIds || [],
         },
       ]);
@@ -100,17 +107,20 @@ const DictionaryPage: React.FC = () => {
   };
 
   // Salvar Categoria
-  const handleSaveCategory = (values: { text: string }) => {
+  const handleSaveCategory = (values: { palavra: string }) => {
     if (editingItem) {
       // Edição
       setCategories(
         categories.map((c) =>
-          c.id === editingItem.id ? { ...c, text: values.text } : c,
+          c.id === editingItem.id ? { ...c, palavra: values.palavra } : c,
         ),
       );
     } else {
       // Criação
-      setCategories([...categories, { id: Date.now(), text: values.text }]);
+      setCategories([
+        ...categories,
+        { id: Date.now(), palavra: values.palavra },
+      ]);
     }
     closeModal();
   };
@@ -122,7 +132,7 @@ const DictionaryPage: React.FC = () => {
       okType: "danger",
       cancelText: "Cancelar",
       onOk() {
-        setWords(words.filter((w) => w.id !== id));
+        setPalavras(palavras.filter((w) => w.id !== id));
       },
     });
   };
@@ -190,7 +200,7 @@ const DictionaryPage: React.FC = () => {
             </Button>
           </Space>
           <Text style={{ fontWeight: "500" }}>
-            Exibindo {filteredWords.length} de {words.length}
+            Exibindo {filteredWords.length} de {palavras.length}
           </Text>
         </div>
 
