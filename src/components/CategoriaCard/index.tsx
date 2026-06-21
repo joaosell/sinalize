@@ -1,18 +1,18 @@
 import React from "react";
 import { Col, Space, Typography } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import type { IPalavra } from "../../types/palavra";
+import type { ICategoria } from "../../types/categoria";
 
 const { Text } = Typography;
 
-interface WordCardProps {
-  item: IPalavra;
+interface CategoriaCardProps {
+  item: ICategoria;
   primaryBlue: string;
-  onEdit: (word: IPalavra) => void;
+  onEdit: (categoria: ICategoria) => void;
   onDelete: (id: number) => void;
 }
 
-const WordCard: React.FC<WordCardProps> = ({
+const CategoriaCard: React.FC<CategoriaCardProps> = ({
   item,
   primaryBlue,
   onEdit,
@@ -32,7 +32,7 @@ const WordCard: React.FC<WordCardProps> = ({
           boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
         }}
       >
-        <Text style={{ color: "#fff", fontSize: "16px" }}>{item.palavra}</Text>
+        <Text style={{ color: "#fff", fontSize: "16px" }}>{item.nome}</Text>
         <Space size="small">
           <EditOutlined
             onClick={() => onEdit(item)}
@@ -48,4 +48,4 @@ const WordCard: React.FC<WordCardProps> = ({
   );
 };
 
-export default WordCard;
+export default CategoriaCard;

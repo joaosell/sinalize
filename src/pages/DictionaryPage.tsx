@@ -8,64 +8,70 @@ import {
 
 import AlphabetFilter from "../components/AlphabetFilter";
 import WordCard from "../components/WordCard";
+import CategoriaCard from "../components/CategoriaCard";
 import WordModal from "../components/WordModal";
+import CategoriaModal from "../components/CategoriaModal";
 import { palavraService } from "../services/palavraService";
+import { categoriaService } from "../services/categoriaService";
+import type { IPalavra } from "../types/palavra";
+import type { ICategoria } from "../types/categoria";
 
 const { Text } = Typography;
 
-export interface Word {
-  id: number;
-  palavra: string;
-  // descricao: string;
-  categoryIds?: number[];
-}
+type ActiveSegment = "Palavras" | "Categorias";
 
 const DictionaryPage: React.FC = () => {
-  const [palavras, setPalavras] = useState<Word[]>([]);
-
-  const [categories, setCategories] = useState([
-    { id: 1, palavra: "Engenharia" },
-    { id: 2, palavra: "Tecnologia" },
-  ]);
+  const [palavras, setPalavras] = useState<IPalavra[]>([]);
+  const [categorias, setCategorias] = useState<ICategoria[]>([]);
+  const [activeSegment, setActiveSegment] = useState<ActiveSegment>("Palavras");
 
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
 
-  const [activeModal, setActiveModal] = useState<"word" | "category" | null>(
-    null,
-  );
-  const [editingItem, setEditingItem] = useState<Word | null>(null);
+  const [activeModal, setActiveModal] = useState<"word" | "category" | null>(null);
+  const [editingWord, setEditingWord] = useState<IPalavra | null>(null);
+  const [editingCategoria, setEditingCategoria] = useState<ICategoria | null>(null);
 
   const primaryBlue = "#1d2c60";
   const grayBackground = "#e5e5e5";
 
-  const carregar = () => palavraService.getAllPalavras().then(setPalavras);
+  const carregarPalavras = () => palavraService.getAllPalavras().then(setPalavras);
+  const carregarCategorias = () => categoriaService.getAllCategorias().then(setCategorias);
 
   useEffect(() => {
-    carregar();
+    carregarPalavras();
+    carregarCategorias();
   }, []);
+
+  const handleSegmentChange = (value: string) => {
+    setActiveSegment(value as ActiveSegment);
+    setSelectedLetter(null);
+    setSearchTerm("");
+    if (value === "Categorias") {
+      carregarCategorias();
+    }
+  };
 
   const handleLetterClick = (letter: string) => {
     setSelectedLetter(selectedLetter === letter ? null : letter);
   };
 
-  // Funções para abrir os Modais isoladamente
-  const openWordModal = (word: Word | null = null) => {
-    setEditingItem(word);
+  const openWordModal = (word: IPalavra | null = null) => {
+    setEditingWord(word);
     setActiveModal("word");
   };
 
-  const openCategoryModal = (category: Word | null = null) => {
-    setEditingItem(category);
+  const openCategoryModal = (categoria: ICategoria | null = null) => {
+    setEditingCategoria(categoria);
     setActiveModal("category");
   };
 
   const closeModal = () => {
     setActiveModal(null);
-    setEditingItem(null);
+    setEditingWord(null);
+    setEditingCategoria(null);
   };
 
-  // Filtragem das Palavras
   const filteredWords = palavras.filter((word) => {
     const matchesSearch = word.palavra
       .toLowerCase()
@@ -73,7 +79,16 @@ const DictionaryPage: React.FC = () => {
     const matchesLetter = selectedLetter
       ? word.palavra.toLowerCase().startsWith(selectedLetter.toLowerCase())
       : true;
+    return matchesSearch && matchesLetter;
+  });
 
+  const filteredCategorias = categorias.filter((cat) => {
+    const matchesSearch = cat.nome
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesLetter = selectedLetter
+      ? cat.nome.toLowerCase().startsWith(selectedLetter.toLowerCase())
+      : true;
     return matchesSearch && matchesLetter;
   });
 
@@ -81,80 +96,86 @@ const DictionaryPage: React.FC = () => {
     palavra: string;
     categoryIds?: number[];
   }) => {
-    if (editingItem) {
-      setPalavras(
-        palavras.map((w) =>
-          w.id === editingItem.id
-            ? {
-                ...w,
-                palavra: values.palavra,
-                categoryIds: values.categoryIds || [],
-              }
-            : w,
-        ),
-      );
-    } else {
-      try {
-        await palavraService.createPalavra({
-          //arrumar os parametros depois
+    try {
+      if (editingWord) {
+        await palavraService.editPalavra(editingWord.id, {
           palavra: values.palavra,
           categoryIds: values.categoryIds,
+        });
+      } else {
+        await palavraService.createPalavra({
+          palavra: values.palavra,
+          categoryIds: values.categoryIds ?? [],
           descricao: "descricao teste",
         });
-      } catch (e) {
-        alert(e);
       }
-    }
-    carregar();
-    closeModal();
-  };
-
-  // Salvar Categoria
-  const handleSaveCategory = (values: { palavra: string }) => {
-    if (editingItem) {
-      // Edição
-      setCategories(
-        categories.map((c) =>
-          c.id === editingItem.id ? { ...c, palavra: values.palavra } : c,
-        ),
-      );
-    } else {
-      // Criação
-      setCategories([
-        ...categories,
-        { id: Date.now(), palavra: values.palavra },
-      ]);
-    }
-    closeModal();
-  };
-
-  async function deletarPalavra(id: number) {
-    try {
-      await palavraService.deletePalavra(id);
-      carregar();
+      carregarPalavras();
     } catch (e) {
       alert(e);
     }
-  }
+    closeModal();
+  };
 
-  const handleDelete = (id: number) => {
+  const handleSaveCategory = async (values: {
+    nome: string;
+    descricao: string;
+  }) => {
+    try {
+      if (editingCategoria) {
+        await categoriaService.editCategoria(editingCategoria.id, {
+          nome: values.nome,
+          descricao: values.descricao,
+        });
+      } else {
+        await categoriaService.createCategoria({
+          nome: values.nome,
+          descricao: values.descricao,
+        });
+      }
+      carregarCategorias();
+    } catch (e) {
+      alert(e);
+    }
+    closeModal();
+  };
+
+  const handleDeleteWord = (id: number) => {
     Modal.confirm({
       title: "Deseja realmente excluir esta palavra?",
       okText: "Sim, excluir",
       okType: "danger",
       cancelText: "Cancelar",
-      onOk() {
-        deletarPalavra(id);
-      },
+      onOk: () => palavraService.deletePalavra(id).then(carregarPalavras).catch(alert),
     });
   };
 
+  const handleDeleteCategoria = (id: number) => {
+    Modal.confirm({
+      title: "Deseja realmente excluir esta categoria?",
+      okText: "Sim, excluir",
+      okType: "danger",
+      cancelText: "Cancelar",
+      onOk: () =>
+        categoriaService.deleteCategoria(id).then(carregarCategorias).catch(alert),
+    });
+  };
+
+  const isCategoriasView = activeSegment === "Categorias";
+  const displayedCount = isCategoriasView
+    ? filteredCategorias.length
+    : filteredWords.length;
+  const totalCount = isCategoriasView ? categorias.length : palavras.length;
+
   return (
     <>
-      {/* O conteúdo principal cresce para empurrar o rodapé para baixo */}
       <div style={{ flex: 1 }}>
         <div style={{ marginTop: "2vh" }}>
-          <Segmented size="large" options={["Palavras", "Categorias"]} />
+          <Segmented
+            size="large"
+            options={["Palavras", "Categorias"]}
+            value={activeSegment}
+            onChange={handleSegmentChange}
+          />
         </div>
         <Input
           placeholder="Pesquisar"
@@ -165,6 +186,7 @@ const DictionaryPage: React.FC = () => {
             padding: 5,
             margin: "2vh",
           }}
+          value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           allowClear
         />
@@ -186,37 +208,41 @@ const DictionaryPage: React.FC = () => {
           }}
         >
           <Space>
+            {!isCategoriasView && (
+              <Button
+                icon={<PlusOutlined />}
+                style={{
+                  borderRadius: "20px",
+                  background: grayBackground,
+                  border: "none",
+                  fontWeight: "500",
+                }}
+                onClick={() => openCategoryModal()}
+              >
+                Criar categoria
+              </Button>
+            )}
             <Button
               icon={<PlusOutlined />}
+              onClick={() =>
+                isCategoriasView ? openCategoryModal() : openWordModal()
+              }
               style={{
                 borderRadius: "20px",
                 background: grayBackground,
                 border: "none",
                 fontWeight: "500",
               }}
-              onClick={() => openCategoryModal()}
             >
-              Criar categoria
-            </Button>
-            <Button
-              icon={<PlusOutlined />}
-              onClick={() => openWordModal()}
-              style={{
-                borderRadius: "20px",
-                background: grayBackground,
-                border: "none",
-                fontWeight: "500",
-              }}
-            >
-              Criar palavra
+              {isCategoriasView ? "Criar categoria" : "Criar palavra"}
             </Button>
           </Space>
           <Text style={{ fontWeight: "500" }}>
-            Exibindo {filteredWords.length} de {palavras.length}
+            Exibindo {displayedCount} de {totalCount}
           </Text>
         </div>
 
-        {filteredWords.length === 0 && (
+        {displayedCount === 0 && (
           <div
             style={{
               display: "flex",
@@ -224,25 +250,44 @@ const DictionaryPage: React.FC = () => {
               marginTop: "40px",
             }}
           >
-            Nenhuma palavra encontrada com os filtros informados!
+            {isCategoriasView
+              ? "Nenhuma categoria encontrada com os filtros informados!"
+              : "Nenhuma palavra encontrada com os filtros informados!"}
           </div>
         )}
 
         {/* Grid de Palavras */}
-        <Row gutter={[12, 12]}>
-          {filteredWords.map((item) => (
-            <WordCard
-              key={item.id}
-              item={item}
-              primaryBlue={primaryBlue}
-              onEdit={openWordModal}
-              onDelete={handleDelete}
-            />
-          ))}
-        </Row>
+        {!isCategoriasView && (
+          <Row gutter={[12, 12]}>
+            {filteredWords.map((item) => (
+              <WordCard
+                key={item.id}
+                item={item}
+                primaryBlue={primaryBlue}
+                onEdit={openWordModal}
+                onDelete={handleDeleteWord}
+              />
+            ))}
+          </Row>
+        )}
+
+        {/* Grid de Categorias */}
+        {isCategoriasView && (
+          <Row gutter={[12, 12]}>
+            {filteredCategorias.map((item) => (
+              <CategoriaCard
+                key={item.id}
+                item={item}
+                primaryBlue={primaryBlue}
+                onEdit={openCategoryModal}
+                onDelete={handleDeleteCategoria}
+              />
+            ))}
+          </Row>
+        )}
 
         {/* Botão Ver Mais */}
-        {filteredWords.length > 24 && (
+        {displayedCount > 24 && (
           <div
             style={{
               display: "flex",
@@ -269,21 +314,23 @@ const DictionaryPage: React.FC = () => {
 
       <WordModal
         isOpen={activeModal === "word"}
-        editingWord={editingItem}
+        editingWord={editingWord}
         onCancel={closeModal}
         onSave={handleSaveWord}
         primaryBlue={primaryBlue}
-        keyWord="Palavra"
-        categories={categories}
+        categories={categorias.map((c) => ({
+          id: c.id,
+          nome: c.nome,
+          descricao: c.descricao,
+        }))}
       />
 
-      <WordModal
+      <CategoriaModal
         isOpen={activeModal === "category"}
-        editingWord={editingItem}
+        editingCategoria={editingCategoria}
         onCancel={closeModal}
         onSave={handleSaveCategory}
         primaryBlue={primaryBlue}
-        keyWord="Categoria"
       />
     </>
   );
