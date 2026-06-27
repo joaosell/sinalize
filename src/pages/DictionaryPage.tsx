@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, Row, Space, Typography, Modal, Input, Segmented } from "antd";
-import {
-  FilterOutlined,
-  PlusOutlined,
-  SearchOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 
 import AlphabetFilter from "../components/AlphabetFilter";
 import WordCard from "../components/WordCard";
@@ -15,6 +11,7 @@ import { palavraService } from "../services/palavraService";
 import { categoriaService } from "../services/categoriaService";
 import type { IPalavra } from "../types/palavra";
 import type { ICategoria } from "../types/categoria";
+import CategoriaFilter from "../components/CategoriaFIlter/CategoriaFilter";
 
 const { Text } = Typography;
 
@@ -27,16 +24,23 @@ const DictionaryPage: React.FC = () => {
 
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>("");
+  const [ordenacao, setOrdenacao] = useState<string>("asc");
 
-  const [activeModal, setActiveModal] = useState<"word" | "category" | null>(null);
+  const [activeModal, setActiveModal] = useState<"word" | "category" | null>(
+    null,
+  );
   const [editingWord, setEditingWord] = useState<IPalavra | null>(null);
-  const [editingCategoria, setEditingCategoria] = useState<ICategoria | null>(null);
+  const [editingCategoria, setEditingCategoria] = useState<ICategoria | null>(
+    null,
+  );
 
   const primaryBlue = "#1d2c60";
   const grayBackground = "#e5e5e5";
 
-  const carregarPalavras = () => palavraService.getAllPalavras().then(setPalavras);
-  const carregarCategorias = () => categoriaService.getAllCategorias().then(setCategorias);
+  const carregarPalavras = () =>
+    palavraService.getAllPalavras().then(setPalavras);
+  const carregarCategorias = () =>
+    categoriaService.getAllCategorias().then(setCategorias);
 
   useEffect(() => {
     carregarPalavras();
@@ -72,25 +76,43 @@ const DictionaryPage: React.FC = () => {
     setEditingCategoria(null);
   };
 
-  const filteredWords = palavras.filter((word) => {
-    const matchesSearch = word.palavra
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesLetter = selectedLetter
-      ? word.palavra.toLowerCase().startsWith(selectedLetter.toLowerCase())
-      : true;
-    return matchesSearch && matchesLetter;
-  });
+  const sortWords = (a: IPalavra, b: IPalavra) => {
+    if (ordenacao === "asc") return a.palavra.localeCompare(b.palavra);
+    if (ordenacao === "desc") return b.palavra.localeCompare(a.palavra);
+    if (ordenacao === "recentes") return b.id - a.id;
+    return 0;
+  };
 
-  const filteredCategorias = categorias.filter((cat) => {
-    const matchesSearch = cat.nome
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesLetter = selectedLetter
-      ? cat.nome.toLowerCase().startsWith(selectedLetter.toLowerCase())
-      : true;
-    return matchesSearch && matchesLetter;
-  });
+  const sortCategorias = (a: ICategoria, b: ICategoria) => {
+    if (ordenacao === "asc") return a.nome.localeCompare(b.nome);
+    if (ordenacao === "desc") return b.nome.localeCompare(a.nome);
+    if (ordenacao === "recentes") return b.id - a.id;
+    return 0;
+  };
+
+  const filteredWords = palavras
+    .filter((word) => {
+      const matchesSearch = word.palavra
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesLetter = selectedLetter
+        ? word.palavra.toLowerCase().startsWith(selectedLetter.toLowerCase())
+        : true;
+      return matchesSearch && matchesLetter;
+    })
+    .sort((a, b) => sortWords(a, b));
+
+  const filteredCategorias = categorias
+    .filter((cat) => {
+      const matchesSearch = cat.nome
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesLetter = selectedLetter
+        ? cat.nome.toLowerCase().startsWith(selectedLetter.toLowerCase())
+        : true;
+      return matchesSearch && matchesLetter;
+    })
+    .sort((a, b) => sortCategorias(a, b));
 
   const handleSaveWord = async (values: {
     palavra: string;
@@ -144,7 +166,8 @@ const DictionaryPage: React.FC = () => {
       okText: "Sim, excluir",
       okType: "danger",
       cancelText: "Cancelar",
-      onOk: () => palavraService.deletePalavra(id).then(carregarPalavras).catch(alert),
+      onOk: () =>
+        palavraService.deletePalavra(id).then(carregarPalavras).catch(alert),
     });
   };
 
@@ -155,7 +178,10 @@ const DictionaryPage: React.FC = () => {
       okType: "danger",
       cancelText: "Cancelar",
       onOk: () =>
-        categoriaService.deleteCategoria(id).then(carregarCategorias).catch(alert),
+        categoriaService
+          .deleteCategoria(id)
+          .then(carregarCategorias)
+          .catch(alert),
     });
   };
 
@@ -176,20 +202,27 @@ const DictionaryPage: React.FC = () => {
             onChange={handleSegmentChange}
           />
         </div>
-        <Input
-          placeholder="Pesquisar"
-          prefix={<SearchOutlined style={{ color: "#aaa", marginLeft: 5 }} />}
-          style={{
-            borderRadius: "20px",
-            width: "50vh",
-            padding: 5,
-            margin: "2vh",
-          }}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          allowClear
-        />
-        <Button shape="circle" icon={<FilterOutlined />} />
+
+        <div
+          style={{ display: "flex", justifyContent: "center", alignItems: "center"}}
+        >
+          <Input
+            placeholder="Pesquisar"
+            prefix={<SearchOutlined style={{ color: "#aaa", marginLeft: 5 }} />}
+            style={{
+              borderRadius: "20px",
+              width: "50vh",
+              padding: 5,
+              margin: "2vh",
+            }}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            allowClear
+          />
+
+          <CategoriaFilter onFiltroChange={(key) => setOrdenacao(key)} />
+        </div>
+
         <AlphabetFilter
           grayBackground={grayBackground}
           primaryBlue={primaryBlue}
@@ -197,7 +230,7 @@ const DictionaryPage: React.FC = () => {
           onLetterClick={handleLetterClick}
         />
 
-        {/* Barra de Ações */}
+        {/* Barra de Ações*/}
         <div
           style={{
             display: "flex",
