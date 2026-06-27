@@ -106,7 +106,6 @@ const DictionaryPage: React.FC = () => {
         await palavraService.createPalavra({
           palavra: values.palavra,
           categoryIds: values.categoryIds ?? [],
-          descricao: "descricao teste",
         });
       }
       carregarPalavras();

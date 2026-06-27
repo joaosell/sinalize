@@ -4,7 +4,6 @@ import type { IUsuarioResumido } from "./usuario";
 export interface IPalavra {
   id: number;
   palavra: string;
-  descricao: string;
   criado_por: IUsuarioResumido;
   atualizado_por: IUsuarioResumido | null;
   criado_em: string;
@@ -15,5 +14,4 @@ export interface IPalavra {
 export interface IPalavraResumida {
   id: number;
   palavra: string;
-  descricao: string;
 }
