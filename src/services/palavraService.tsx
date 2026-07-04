@@ -5,6 +5,10 @@ export const palavraService = {
   createPalavra: (body: { palavra: string; categoryIds: number[] }) =>
     api.post("/palavras", body),
   deletePalavra: (id: number) => api.delete(`/palavras/${id}`),
+  getRandomPalavras: (excluir: number[], quantidade: number) =>
+    api.get("/palavras/aleatorias", {
+      params: { excluir: excluir.join(","), quantidade },
+    }),
   editPalavra: (
     id: number,
     body: { palavra?: string; categoryIds?: number[] },
