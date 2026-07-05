@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VLibras</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+        background: #111;
+        cursor: default !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div vw class="enabled">
+      <div vw-access-button class="active"></div>
+      <div vw-plugin-wrapper>
+        <div class="vw-plugin-top-wrapper"></div>
+      </div>
+    </div>
+
+    <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+    <script>
+      (function () {
+        var pronto = false;
+        var ultimaPalavra = "";
+
+        function injetarOverride() {
+          if (document.getElementById("vlibras-override")) return;
+          var fill =
+            "position:absolute !important;top:0 !important;left:0 !important;" +
+            "right:0 !important;bottom:0 !important;width:100% !important;" +
+            "height:100% !important;max-width:none !important;" +
+            "max-height:none !important;min-width:0 !important;" +
+            "min-height:0 !important;margin:0 !important;" +
+            "transform:none !important;";
+          var style = document.createElement("style");
+          style.id = "vlibras-override";
+          style.textContent = [
+            "[vw],[vw].enabled{" + fill + "}",
+            "[vw-plugin-wrapper],[vw-plugin-wrapper].active{" +
+              fill +
+              "transform:none !important;border-radius:0 !important;" +
+              "box-shadow:none !important;background:transparent !important;}",
+            "[vw-plugin-wrapper] > div{" + fill + "}",
+            "#gameContainer,[vw-plugin-wrapper] .emscripten{" +
+              fill +
+              "display:flex !important;align-items:center !important;" +
+              "justify-content:center !important;background:transparent !important;}",
+            "[vw-plugin-wrapper] canvas{position:static !important;" +
+              "width:auto !important;height:100% !important;" +
+              "max-width:100% !important;max-height:100% !important;" +
+              "display:block !important;}", // ver se é possível adicionar só o botão de refazer o sinal
+            "[vw-access-button],.vp-access-button,.vp-pop-up{display:none !important;}",
+            "[vw-plugin-wrapper] > div > *:not(#gameContainer){display:none !important;}",
+          ].join("");
+          document.head.appendChild(style);
+        }
+
+        function ajustarTamanho() {
+          injetarOverride();
+          window.dispatchEvent(new Event("resize"));
+        }
+
+        function traduzir(texto) {
+          var termo = (texto || "").trim();
+          if (!termo || !window.plugin) return;
+          if (typeof window.plugin.translate === "function") {
+            window.plugin.translate(termo);
+          } else if (
+            window.plugin.player &&
+            typeof window.plugin.player.translate === "function"
+          ) {
+            window.plugin.player.translate(termo);
+          }
+        }
+
+        window.addEventListener("message", function (event) {
+          var data = event.data || {};
+          if (data.type !== "sinalizar") return;
+          ultimaPalavra = data.texto || "";
+          if (pronto) traduzir(ultimaPalavra);
+        });
+
+        window.addEventListener("resize", injetarOverride);
+
+        new window.VLibras.Widget("https://vlibras.gov.br/app");
+
+        var bootLoader = setInterval(function () {
+          var btn = document.querySelector("[vw-access-button]");
+          if (!btn) return;
+          clearInterval(bootLoader);
+          btn.click();
+
+          var waitForMotor = setInterval(function () {
+            if (window.plugin && window.plugin.player) {
+              clearInterval(waitForMotor);
+              pronto = true;
+              ajustarTamanho();
+              setTimeout(ajustarTamanho, 500);
+              setTimeout(ajustarTamanho, 1500);
+
+              if (window.parent) {
+                window.parent.postMessage(
+                  { source: "vlibras-frame", type: "ready" },
+                  "*",
+                );
+              }
+              if (ultimaPalavra) traduzir(ultimaPalavra);
+            }
+          }, 400);
+        }, 400);
+      })();
+    </script>
+  </body>
+</html>
