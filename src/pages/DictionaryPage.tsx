@@ -197,7 +197,6 @@ const DictionaryPage: React.FC = () => {
           onLetterClick={handleLetterClick}
         />
 
-        {/* Barra de Ações */}
         <div
           style={{
             display: "flex",
@@ -255,7 +254,6 @@ const DictionaryPage: React.FC = () => {
           </div>
         )}
 
-        {/* Grid de Palavras */}
         {!isCategoriasView && (
           <Row gutter={[12, 12]}>
             {filteredWords.map((item) => (
@@ -270,7 +268,6 @@ const DictionaryPage: React.FC = () => {
           </Row>
         )}
 
-        {/* Grid de Categorias */}
         {isCategoriasView && (
           <Row gutter={[12, 12]}>
             {filteredCategorias.map((item) => (
@@ -285,7 +282,6 @@ const DictionaryPage: React.FC = () => {
           </Row>
         )}
 
-        {/* Botão Ver Mais */}
         {displayedCount > 24 && (
           <div
             style={{

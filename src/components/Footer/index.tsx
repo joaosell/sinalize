@@ -1,29 +1,48 @@
-import { Layout, Typography } from "antd";
+import { Layout, Typography, Space } from "antd";
 import udescLogo from "../../assets/udesc_logo.png";
 
 function Footer() {
-  const { Footer } = Layout;
+  const { Footer: AntFooter } = Layout;
 
   return (
-    <Footer
+    <AntFooter
       style={{
-        backgroundColor: "#1d2c60",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "10px 16px",
-        marginTop: "80px",
+        backgroundColor: "#152047",
+        padding: "24px 20px",
+        marginTop: "auto",
       }}
     >
-      <img src={udescLogo} alt="UDESC" style={{ maxWidth: 100 }} />
-      <Typography.Text
-        style={{ color: "#fff", textAlign: "center", fontSize: 13 }}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          maxWidth: "800px",
+          margin: "0 auto",
+          gap: "10px",
+        }}
       >
-        Feito por João Pedro Ferreira Sell, Pedro Paoli Neto e Felipe Augusto
-        Mais
-      </Typography.Text>
-    </Footer>
+        <Space align="center" size="middle">
+          <img
+            src={udescLogo}
+            alt="UDESC Logo"
+            style={{ height: "67px", opacity: 0.9 }}
+          />
+          <Typography.Text
+            style={{ color: "rgba(255, 255, 255, 0.9)", fontSize: "15px" }}
+          >
+            <strong>Sinalize</strong> • Informática na Educação
+          </Typography.Text>
+        </Space>
+
+        <Typography.Text
+          style={{ color: "rgba(255, 255, 255, 0.5)", fontSize: "13px" }}
+        >
+          UDESC - Centro de Ciências Tecnológicas
+        </Typography.Text>
+      </div>
+    </AntFooter>
   );
 }
 
