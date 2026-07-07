@@ -137,7 +137,16 @@ const QuizPage: React.FC = () => {
       : "";
 
   return (
-    <div style={{ maxWidth: 760, margin: "0 auto", padding: "2vh 1rem" }}>
+    <div
+      style={{
+        position: "relative",
+        width: "100%",
+        maxWidth: 760,
+        margin: "0 auto",
+        padding: "4vh 2rem",
+        minHeight: "80vh",
+      }}
+    >
       {quiz && fase !== "selecionando" && (
         <QuizProgressBar
           total={total}
@@ -151,7 +160,7 @@ const QuizPage: React.FC = () => {
         style={{
           position: "relative",
           width: "100%",
-          aspectRatio: "16 / 10",
+          aspectRatio: "16 / 9",
           background: "#111",
           borderRadius: 14,
           overflow: "hidden",
