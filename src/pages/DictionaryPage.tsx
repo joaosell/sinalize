@@ -205,7 +205,7 @@ const DictionaryPage: React.FC = () => {
 
   return (
     <>
-      <div style={{ flex: 1 }}>
+      <div style={{ width: "100%", boxSizing: "border-box" }}>
         <div style={{ marginTop: "2vh" }}>
           <Segmented
             size="large"
@@ -253,20 +253,7 @@ const DictionaryPage: React.FC = () => {
           }}
         >
           <Space>
-            {!isCategoriasView && (
-              <Button
-                icon={<PlusOutlined />}
-                style={{
-                  borderRadius: "20px",
-                  background: grayBackground,
-                  border: "none",
-                  fontWeight: "500",
-                }}
-                onClick={() => openCategoryModal()}
-              >
-                Criar categoria
-              </Button>
-            )}
+            
             <Button
               icon={<PlusOutlined />}
               onClick={() =>
@@ -327,7 +314,7 @@ const DictionaryPage: React.FC = () => {
         )}
 
         {!isCategoriasView && (
-          <Row gutter={[12, 12]}>
+          <Row gutter={[12, 12]} style={{ width: "100%", margin: 0 }}>
             {filteredWords.map((item) => (
               <WordCard
                 key={item.id}
@@ -341,7 +328,7 @@ const DictionaryPage: React.FC = () => {
         )}
 
         {isCategoriasView && (
-          <Row gutter={[12, 12]}>
+          <Row gutter={[12, 12]} style={{ width: "100%", margin: 0 }}>
             {filteredCategorias.map((item) => (
               <CategoriaCard
                 key={item.id}
