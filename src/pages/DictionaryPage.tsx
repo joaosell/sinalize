@@ -1,6 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Button, Row, Space, Typography, Modal, Input, Segmented } from "antd";
-import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  Button,
+  Row,
+  Space,
+  Typography,
+  Modal,
+  Input,
+  Segmented,
+  Dropdown,
+} from "antd";
+import {
+  PlusOutlined,
+  SearchOutlined,
+  SortAscendingOutlined,
+} from "@ant-design/icons";
 
 import AlphabetFilter from "../components/AlphabetFilter";
 import WordCard from "../components/WordCard";
@@ -11,7 +24,6 @@ import { palavraService } from "../services/palavraService";
 import { categoriaService } from "../services/categoriaService";
 import type { IPalavra } from "../types/palavra";
 import type { ICategoria } from "../types/categoria";
-import CategoriaFilter from "../components/CategoriaFIlter/CategoriaFilter";
 
 const { Text } = Typography;
 
@@ -223,8 +235,6 @@ const DictionaryPage: React.FC = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             allowClear
           />
-
-          <CategoriaFilter onFiltroChange={(key) => setOrdenacao(key)} />
         </div>
 
         <AlphabetFilter
@@ -272,9 +282,34 @@ const DictionaryPage: React.FC = () => {
               {isCategoriasView ? "Criar categoria" : "Criar palavra"}
             </Button>
           </Space>
-          <Text style={{ fontWeight: "500" }}>
-            Exibindo {displayedCount} de {totalCount}
-          </Text>
+          <Space align="center" size="middle">
+            <Text style={{ fontWeight: "500" }}>
+              Exibindo {displayedCount} de {totalCount}
+            </Text>
+            <Dropdown
+              menu={{
+                items: [
+                  { key: "asc", label: "A-Z" },
+                  { key: "desc", label: "Z-A" },
+                  { key: "recentes", label: "Mais recentes" },
+                ],
+                onClick: (e) => setOrdenacao(e.key),
+              }}
+              placement="bottomRight"
+            >
+              <Button
+                icon={<SortAscendingOutlined />}
+                style={{
+                  borderRadius: "20px",
+                  background: grayBackground,
+                  border: "none",
+                  fontWeight: "500",
+                }}
+              >
+                Ordenar
+              </Button>
+            </Dropdown>
+          </Space>
         </div>
 
         {displayedCount === 0 && (
