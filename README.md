@@ -92,6 +92,6 @@ A aplicação estará ativa e disponível na porta padrão do Vite: **http://loc
 
 ## Repositórios do projeto
 
-Repositório Front-end (React): github.com/joaosell/sinalize
+Repositório Front-end (React) (Este!)
 
-Repositório Back-end (NestJS): github.com/paoli2004/sinalize-back
+[Repositório Back-end (NestJS)](https://github.com/paoli2004/sinalize-back)
