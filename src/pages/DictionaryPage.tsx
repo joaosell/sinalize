@@ -253,20 +253,7 @@ const DictionaryPage: React.FC = () => {
           }}
         >
           <Space>
-            {!isCategoriasView && (
-              <Button
-                icon={<PlusOutlined />}
-                style={{
-                  borderRadius: "20px",
-                  background: grayBackground,
-                  border: "none",
-                  fontWeight: "500",
-                }}
-                onClick={() => openCategoryModal()}
-              >
-                Criar categoria
-              </Button>
-            )}
+            
             <Button
               icon={<PlusOutlined />}
               onClick={() =>
